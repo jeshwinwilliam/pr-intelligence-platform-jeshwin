@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: pr_intelligence_platform
+      POSTGRES_USER: pr_intelligence_platform
+      POSTGRES_PASSWORD: pr_intelligence_platform
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6380:6379"
+
+  app:
+    build: .
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/pr_intelligence_platform
+      DB_USERNAME: pr_intelligence_platform
+      DB_PASSWORD: pr_intelligence_platform
+      AI_PROVIDER: deterministic
+    ports:
+      - "8081:8081"
+
+volumes:
+  pgdata:
