@@ -49,7 +49,7 @@ Then run:
 mvn spring-boot:run
 ```
 
-If those variables are not set, the application automatically falls back to the deterministic Java review synthesizer.
+If those variables are not set, or if Spring AI/OpenAI is not available at startup, the application automatically falls back to the deterministic Java review synthesizer.
 
 ## Architecture
 

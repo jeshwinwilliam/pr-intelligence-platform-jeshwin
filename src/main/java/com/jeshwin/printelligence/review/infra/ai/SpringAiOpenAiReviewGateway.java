@@ -10,36 +10,35 @@ import com.jeshwin.printelligence.review.domain.ReviewChunk;
 import com.jeshwin.printelligence.review.domain.ReviewRecommendation;
 import com.jeshwin.printelligence.review.domain.RiskBand;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-@ConditionalOnProperty(name = "pr.intelligence.ai.provider", havingValue = "openai")
-@ConditionalOnBean(ChatClient.Builder.class)
-public class SpringAiOpenAiReviewGateway implements AiReviewGateway {
+public class SpringAiOpenAiReviewGateway {
 
-    private final ChatClient chatClient;
+    private final ObjectProvider<ChatClient.Builder> chatClientBuilderProvider;
     private final ObjectMapper objectMapper;
-    private final DeterministicFallbackReviewSynthesizer fallbackSynthesizer;
 
-    public SpringAiOpenAiReviewGateway(ChatClient.Builder chatClientBuilder,
-                                       ObjectMapper objectMapper,
-                                       DeterministicFallbackReviewSynthesizer fallbackSynthesizer) {
-        this.chatClient = chatClientBuilder.build();
+    public SpringAiOpenAiReviewGateway(ObjectProvider<ChatClient.Builder> chatClientBuilderProvider,
+                                       ObjectMapper objectMapper) {
+        this.chatClientBuilderProvider = chatClientBuilderProvider;
         this.objectMapper = objectMapper;
-        this.fallbackSynthesizer = fallbackSynthesizer;
     }
 
-    @Override
-    public ReviewRecommendation generate(PullRequestSnapshot snapshot,
-                                         List<ReviewChunk> chunks,
-                                         List<ReviewRecommendation.ReviewFindingDraft> policyFindings,
-                                         List<String> architectureContext) {
+    public ReviewRecommendation tryGenerate(PullRequestSnapshot snapshot,
+                                            List<ReviewChunk> chunks,
+                                            List<ReviewRecommendation.ReviewFindingDraft> policyFindings,
+                                            List<String> architectureContext) {
+        ChatClient.Builder builder = chatClientBuilderProvider.getIfAvailable();
+        if (builder == null) {
+            return null;
+        }
+
         try {
-            String raw = chatClient.prompt()
+            String raw = builder.build()
+                    .prompt()
                     .system(systemPrompt())
                     .user(userPrompt(snapshot, chunks, policyFindings, architectureContext))
                     .call()
@@ -48,7 +47,7 @@ public class SpringAiOpenAiReviewGateway implements AiReviewGateway {
             ModelReviewResponse parsed = objectMapper.readValue(stripCodeFences(raw), ModelReviewResponse.class);
             return toRecommendation(parsed, policyFindings);
         } catch (Exception ex) {
-            return fallbackSynthesizer.generate(snapshot, chunks, policyFindings, architectureContext);
+            return null;
         }
     }
 
