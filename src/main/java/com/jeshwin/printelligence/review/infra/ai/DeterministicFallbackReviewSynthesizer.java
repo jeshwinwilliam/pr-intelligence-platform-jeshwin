@@ -6,7 +6,6 @@ import com.jeshwin.printelligence.review.domain.PullRequestSnapshot;
 import com.jeshwin.printelligence.review.domain.ReviewChunk;
 import com.jeshwin.printelligence.review.domain.ReviewRecommendation;
 import com.jeshwin.printelligence.review.domain.RiskBand;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -14,10 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 
 @Component
-@ConditionalOnMissingBean(AiReviewGateway.class)
-public class DeterministicAiReviewGateway implements AiReviewGateway {
+public class DeterministicFallbackReviewSynthesizer {
 
-    @Override
     public ReviewRecommendation generate(PullRequestSnapshot snapshot,
                                          List<ReviewChunk> chunks,
                                          List<ReviewRecommendation.ReviewFindingDraft> policyFindings,

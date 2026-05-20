@@ -10,7 +10,12 @@ This project is built fully in Java using Spring Boot.
 - No Python runtime is required to run the application
 - The review pipeline, policy engine, orchestration, and AI integration boundaries are all implemented in Java
 
-The current AI layer is implemented as a deterministic Java gateway so the system is easy to run and explain locally. The architecture is intentionally prepared for future Java-based LLM integrations through Spring AI or LangChain4j without changing the core service design.
+The project now supports two Java-only AI modes:
+
+- `deterministic`: local fallback mode that runs without any external model dependency
+- `openai`: real Spring AI integration backed by OpenAI through Spring's `ChatClient`
+
+This keeps local development simple while allowing a real LLM-backed review path when you provide API credentials.
 
 ## Recruiter-friendly framing
 
@@ -26,6 +31,25 @@ Built a Java Spring Boot PR intelligence platform that performs AI-assisted code
 - Retrieve engineering standards context through a vector-search boundary
 - Generate executive summaries and architecture guidance through an AI gateway
 - Persist findings, review history, and outbox events
+
+## Running with real AI
+
+To enable the real Spring AI + OpenAI path, export these environment variables before starting the app:
+
+```bash
+export AI_PROVIDER=openai
+export SPRING_AI_CHAT_MODEL=openai
+export OPENAI_API_KEY=your_openai_api_key
+export OPENAI_MODEL=gpt-4o-mini
+```
+
+Then run:
+
+```bash
+mvn spring-boot:run
+```
+
+If those variables are not set, the application automatically falls back to the deterministic Java review synthesizer.
 
 ## Architecture
 
@@ -53,7 +77,7 @@ flowchart LR
 - `ReviewOrchestrationService` owns idempotent submission and async dispatch.
 - `ReviewWorker` splits ingestion from chunking, policy analysis, retrieval, and finding persistence in one transactional workflow.
 - `GitHubPullRequestGateway`, `KnowledgeRetrievalGateway`, and `AiReviewGateway` are explicit seams for real integrations.
-- The current implementation uses deterministic and in-memory adapters so you can demo locally without external services.
+- The current implementation supports both a deterministic Java fallback and a real Spring AI OpenAI integration path.
 
 ## API quickstart
 
@@ -94,7 +118,7 @@ docker compose up --build
 ## Strong next steps
 
 1. Replace the stub GitHub gateway with GitHub App or PAT-based API ingestion.
-2. Add Spring AI or LangChain4j provider implementations for OpenAI, Gemini, or Azure OpenAI.
+2. Add additional Spring AI or LangChain4j provider implementations for Gemini or Azure OpenAI.
 3. Use `pgvector` to retrieve team-specific coding standards and previous review patterns.
 4. Drain outbox events into a comment publisher that writes back to GitHub.
 5. Expand policy packs into OWASP, architecture boundaries, service ownership rules, and repo-specific reviewer personas.
