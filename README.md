@@ -55,17 +55,42 @@ If those variables are not set, or if Spring AI/OpenAI is not available at start
 
 ```mermaid
 flowchart LR
-    A["GitHub Webhook / API Client"] --> B["Spring Boot API Edge"]
+    A["GitHub Webhook / PR Trigger"] --> B["Spring Boot API Edge"]
     B --> C["Review Orchestration Service"]
-    C --> D["Review Worker"]
-    D --> E["GitHub PR Gateway"]
-    D --> F["Review Chunker"]
-    D --> G["Policy Rule Engine"]
-    D --> H["Knowledge Retrieval Gateway"]
-    D --> I["AI Review Gateway"]
-    D --> J["PostgreSQL Review Store"]
-    D --> K["Outbox Events"]
-    K --> L["Comment Publisher / Slack / Analytics"]
+    C --> D["Idempotency Key Generator"]
+    C --> E["Async Review Worker"]
+
+    E --> F["GitHub PR Gateway"]
+    F --> G["PR Snapshot + File Diffs"]
+
+    E --> H["Review Chunker"]
+    H --> I["Review Lanes
+    trust-boundary
+    request-edge
+    runtime-policy
+    core-change"]
+
+    E --> J["Policy Rule Engine"]
+    J --> K["Security / Code Smell / Architecture Findings"]
+
+    E --> L["Knowledge Retrieval Gateway"]
+    L --> M["Engineering Standards Context"]
+
+    E --> N["Hybrid AI Review Gateway"]
+    N --> O["Spring AI + OpenAI"]
+    N --> P["Deterministic Java Fallback"]
+
+    K --> N
+    M --> N
+    I --> N
+
+    N --> Q["Risk Score + Risk Band + Summary + Recommendations"]
+
+    E --> R["PostgreSQL / H2 Review Store"]
+    Q --> R
+
+    E --> S["Outbox Events"]
+    S --> T["Future GitHub Comments / Slack / Analytics"]
 ```
 
 ## Key design choices
