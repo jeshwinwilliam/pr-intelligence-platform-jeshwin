@@ -10,3 +10,4 @@ public class PrIntelligencePlatformApplication {
         SpringApplication.run(PrIntelligencePlatformApplication.class, args);
     }
 }
+                                             
