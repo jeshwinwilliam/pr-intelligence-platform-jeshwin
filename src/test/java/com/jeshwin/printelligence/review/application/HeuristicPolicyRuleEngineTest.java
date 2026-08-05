@@ -44,3 +44,13 @@ class HeuristicPolicyRuleEngineTest {
         assertThat(findings).anyMatch(finding -> finding.title().contains("Sensitive request logging"));
     }
 }
+
+
+
+
+
+
+
+
+
+
