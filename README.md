@@ -147,3 +147,5 @@ docker compose up --build
 3. Use `pgvector` to retrieve team-specific coding standards and previous review patterns.
 4. Drain outbox events into a comment publisher that writes back to GitHub.
 5. Expand policy packs into OWASP, architecture boundaries, service ownership rules, and repo-specific reviewer personas.
+
+
