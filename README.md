@@ -148,4 +148,6 @@ docker compose up --build
 4. Drain outbox events into a comment publisher that writes back to GitHub.
 5. Expand policy packs into OWASP, architecture boundaries, service ownership rules, and repo-specific reviewer personas.
 
+6. 
+
 
