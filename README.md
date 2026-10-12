@@ -36,6 +36,8 @@ Built a Java Spring Boot PR intelligence platform that performs AI-assisted code
 
 To enable the real Spring AI + OpenAI path, export these environment variables before starting the app:
 
+
+
 ```bash
 export AI_PROVIDER=openai
 export SPRING_AI_CHAT_MODEL=openai
